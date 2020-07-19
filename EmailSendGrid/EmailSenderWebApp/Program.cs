@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +37,9 @@ namespace EmailSenderWebApp
 
             log.Debug("List of e-mails imported!");
 
-            for (var i = 0; i < emailList.Count; i++)
+            int iterator = 0;
+
+            while(emailList.Any())
             {
                 try
                 {
@@ -46,16 +49,20 @@ namespace EmailSenderWebApp
                         Subject = EmailSubject,
                         HtmlContent = EmailContent
                     };
-                    msg.AddTo(new EmailAddress(emailList[i]));
+                    msg.AddTo(new EmailAddress(emailList[0]));
                     await client.SendEmailAsync(msg);
 
-                    log.Debug($"{i} {emailList[i]} successfully send!");
+                    log.Debug($"{iterator} {emailList[0]} successfully send!");
                     Thread.Sleep(GetWaitingTime());
+                    emailList.RemoveAt(0);
                 }
                 catch (Exception e)
                 {
-                    log.Error($"{i} {emailList[i]} was not send!", e);
+                    log.Error($"{iterator} {emailList[0]} was not send!", e);
+                    emailList.RemoveAt(0);
                 }
+
+                iterator++;
             }
         }
 
